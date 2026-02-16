@@ -1,0 +1,347 @@
+:root {
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --primary: #2563eb;
+}
+
+
+body{
+  font-family: 'Poppins', sans-serif;
+  margin:0;
+  background: var(--card);
+  color:#111;
+  transition: background 0.3s, color 0.3s;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 20px;
+  background:#4a90e2;
+  color:#fff;
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.hamburger{
+  font-size:26px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.hamburger:hover{
+  transform: rotate(90deg);
+}
+
+.theme-toggle{
+  font-size:20px;
+  cursor:pointer;
+  background:none;
+  border:none;
+  color:inherit;
+}
+
+/* Sidebar */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:-250px;
+  width:250px;
+  height:100%;
+  background:#111;
+  padding-top:60px;
+  transition:0.3s;
+  z-index:999;
+}
+
+.sidebar a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:15px 20px;
+  color:white;
+  text-decoration:none;
+  transition:0.2s;
+}
+
+.sidebar a:hover{
+  background:#222;
+}
+
+.sidebar.active{
+  left:0;
+}
+
+.sidebar a i{
+  font-style:normal; /* nanti bisa diganti icon font */
+}
+
+/* Overlay */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+  z-index:998;
+}
+
+.overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* Dashboard */
+.dashboard{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap:20px;
+  padding:20px;
+}
+
+.card{
+  background:#ffffff;
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  text-align:center;
+  transition:0.3s;
+  cursor:default;
+}
+
+.card:hover{
+  transform: translateY(-5px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.card h3{
+  margin-bottom:10px;
+  font-size:16px;
+  color:#555;
+}
+
+.card p{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap:20px;
+  padding:20px;
+}
+
+button{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  background:#4a90e2;
+  color:#fff;
+  cursor:pointer;
+  font-size:16px;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#357ABD;
+  transform: scale(1.05);
+}
+
+/* Soil moisture bar */
+.soil-bar{
+  background:#ddd;
+  border-radius:10px;
+  height:25px;
+  overflow:hidden;
+}
+
+.soil-fill{
+  height:100%;
+  width:0%;
+  background:#4a90e2;
+  text-align:center;
+  color:#fff;
+  line-height:25px;
+  font-weight:bold;
+  transition: width 0.5s, background 0.3s;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .dashboard, .controls{
+    grid-template-columns: 1fr;
+  }
+}
+
+html.dark {
+  --bg: #0f172a;
+  --card: #1e293b;
+}
+
+/* Navbar */
+html.dark .navbar{
+  background: rgba(20,20,20,0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Card */
+html.dark .card{
+  background: #1e1e1e;
+  color: #f5f5f5;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Judul kecil */
+html.dark .card h3{
+  color: #aaa;
+}
+
+/* Soil bar */
+html.dark .soil-bar{
+  background: #333;
+}
+
+/* Button */
+html.dark button{
+  background: #2ecc71;
+  color: white;
+}
+
+html.dark button:hover{
+  background: #27ae60;
+}
+
+/* Status ESP32 */
+html.dark #espStatus{
+  box-shadow: 0 0 10px rgba(0,255,100,0.3);
+}
+
+html.dark .dashboard{
+  background: radial-gradient(circle at top left, rgba(0,255,150,0.05), transparent 60%);
+}
+
+html.light {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  color: #0f172a;
+}
+
+/* Navbar */
+html.light .navbar {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  color: white;
+}
+
+/* Card */
+html.light .card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 
+    0 4px 6px rgba(0,0,0,0.05),
+    0 10px 20px rgba(0,0,0,0.06);
+  border: none;
+}
+
+/* Judul kecil */
+html.light h3 {
+  color: #475569;
+}
+
+/* Soil bar */
+html.light .soil-bar{
+  background: #e5e7eb;
+}
+
+/* Button */
+html.light button{
+  background: #2ecc71;
+  color: white;
+}
+
+html.light button:hover{
+  background: #27ae60;
+}
+
+html.light .navbar{
+  background: #1e293b;
+}
+
+html.light .esp-card {
+  background: linear-gradient(135deg, #ffffff, #f1f5f9);
+}
+
+.esp-status{
+  margin-top:10px;
+  font-weight:bold;
+  padding:8px 15px;
+  border-radius:8px;
+  display:inline-block;
+  background:#999;
+  color:white;
+}
+
+.esp-card{
+  transition:none !important;
+}
+
+.esp-card:hover{
+  transform:none !important;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.mode-btn{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+  color:white;
+  background:#c0392b; /* default merah */
+  transition:0.3s;
+}
+
+.mode-btn.auto{
+  background:#27ae60; /* hijau */
+}
+
+.mode-btn.manual{
+  background:#c0392b; /* merah */
+}
+
+.pump-btn{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+  color:white;
+  transition:0.3s;
+}
+
+.pump-btn.on{
+  background:#27ae60; /* hijau */
+}
+
+.pump-btn.off{
+  background:#c0392b; /* merah */
+}
+
+.no-shadow {
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+.no-shadow:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
