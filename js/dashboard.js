@@ -1,4 +1,5 @@
-const ESP32_IP = "192.168.18.132"; // ganti sesuai IP ESP32
+fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/sensor.json")
+
 
 // Hamburger menu
 function toggleMenu(){
@@ -17,78 +18,103 @@ function showSection(section){
 
 // Tombol Pompa
 document.getElementById("pumpBtn").addEventListener("click", ()=>{
-  fetch(`http://${ESP32_IP}/togglePump`, { method:"POST" })
-    .then(res=>res.json())
-    .then(data=>{
-      document.getElementById("relay").innerHTML = data.relay;
-    })
-    .catch(err=>console.log("ESP32 tidak terkoneksi", err));
+
+  fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/relay.json")
+    .then(res => res.json())
+    .then(current => {
+
+      let newValue = current == 1 ? 0 : 1;
+
+      fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/relay.json", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newValue)
+      });
+
+    });
+
 });
 
 // Tombol Mode
 document.getElementById("modeBtn").addEventListener("click", ()=>{
-  fetch(`http://${ESP32_IP}/toggleMode`, { method:"POST" })
-    .then(res=>res.json())
-    .then(data=>{
-      document.getElementById("mode").innerHTML = data.mode;
-    })
-    .catch(err=>console.log("ESP32 tidak terkoneksi", err));
+
+  fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/mode.json")
+    .then(res => res.json())
+    .then(current => {
+
+      let newValue = current == 1 ? 0 : 1;
+
+      fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/mode.json", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newValue)
+      });
+
+    });
+
 });
 
 /* ===== REALTIME UPDATE ===== */
 function updateData(){
-  fetch(`http://${ESP32_IP}/data`)
-    .then(res=>res.json())
-    .then(data=>{
-      
-      document.getElementById("tempDHT").innerHTML = data.tempDHT + " °C";
-      document.getElementById("tempDS").innerHTML = data.tempDS + " °C";
-      document.getElementById("relay").innerHTML = data.relay;
+  fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/.json")
+    .then(res => res.json())
+    .then(data => {
+
+      let sensor = data.sensor;
+      let status = data.status;
+
+      document.getElementById("tempDHT").innerHTML = sensor.tempDHT + " °C";
+      document.getElementById("tempDS").innerHTML = sensor.tempDS + " °C";
+
+      document.getElementById("relay").innerHTML = status.relay ? "Aktif" : "Tidak Aktif";
+      document.getElementById("mode").innerHTML = status.mode ? "Otomatis" : "Manual";
+
+      // Tombol Pompa
       let pumpBtn = document.getElementById("pumpBtn");
+      if(status.relay == 1){
+        pumpBtn.innerHTML = "ON";
+        pumpBtn.className = "on";
+      } else {
+        pumpBtn.innerHTML = "OFF";
+        pumpBtn.className = "off";
+      }
 
-      if(data.relay === "Aktif"){
-      pumpBtn.innerHTML = "ON";
-      pumpBtn.classList.remove("off");
-      pumpBtn.classList.add("on");
-      }else{
-      pumpBtn.innerHTML = "OFF";
-      pumpBtn.classList.remove("on");
-      pumpBtn.classList.add("off");
-    }
-
-      document.getElementById("mode").innerHTML = data.mode;
+      // Tombol Mode
       let modeBtn = document.getElementById("modeBtn");
+      if(status.mode == 1){
+        modeBtn.innerHTML = "Auto";
+        modeBtn.className = "auto";
+      } else {
+        modeBtn.innerHTML = "Manual";
+        modeBtn.className = "manual";
+      }
 
-      if(data.mode === "Otomatis"){
-      modeBtn.innerHTML = "Auto";
-      modeBtn.classList.remove("manual");
-      modeBtn.classList.add("auto");
-      }else{
-      modeBtn.innerHTML = "Manual";
-      modeBtn.classList.remove("auto");
-      modeBtn.classList.add("manual");
-    }
+      if(status.mode == 1){
+        document.getElementById("pumpBtn").disabled = true;
+        document.getElementById("pumpBtn").style.opacity = "0.5";
+      } else {
+        document.getElementById("pumpBtn").disabled = false;
+        document.getElementById("pumpBtn").style.opacity = "1";
+      }
+
 
       // Soil indicator
-      let soilEl = document.getElementById("soil");
-      let soilFill = soilEl;
-      soilFill.style.width = data.soil + "%";
-      soilFill.innerHTML = data.soil + " %";
+      let soilFill = document.getElementById("soil");
+      soilFill.style.width = sensor.soil + "%";
+      soilFill.innerHTML = sensor.soil + " %";
 
-      if(data.soil < 30) soilFill.style.background = "#e74c3c"; // merah
-      else if(data.soil < 60) soilFill.style.background = "#f1c40f"; // kuning
-      else soilFill.style.background = "#2ecc71"; // hijau
+      if(sensor.soil < 30) soilFill.style.background = "#e74c3c";
+      else if(sensor.soil < 60) soilFill.style.background = "#f1c40f";
+      else soilFill.style.background = "#2ecc71";
 
-      const statusEl = document.getElementById("espStatus");
-      statusEl.innerHTML = "ONLINE";
-      statusEl.style.backgroundColor = "green";
+      document.getElementById("espStatus").innerHTML = "ONLINE";
+      document.getElementById("espStatus").style.backgroundColor = "green";
+
     })
     .catch(err => {
-      // kalau fetch gagal, anggap ESP32 OFF
-      const statusEl = document.getElementById("espStatus");
-      statusEl.innerHTML = "OFFLINE";
-      statusEl.style.backgroundColor = "red";
-      console.log("ESP32 tidak terhubung:", err);
+      document.getElementById("espStatus").innerHTML = "OFFLINE";
+      document.getElementById("espStatus").style.backgroundColor = "red";
+      console.log("Firebase error:", err);
     });
 }
 
