@@ -17,6 +17,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+function toggleMenu(){
+
+    document.getElementById("sidebar").classList.toggle("active");
+
+    document.getElementById("overlay").classList.toggle("active");
+}
+
 function toggleTheme() {
     const html = document.documentElement;
 

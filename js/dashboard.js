@@ -1,122 +1,159 @@
-fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/sensor.json")
+// =============================
+// MQTT CONFIG
+// =============================
+const broker = "ws://103.160.62.201:9001";
+const client = mqtt.connect(broker);
 
+const pumpBtn = document.getElementById("pumpBtn");
+const modeBtn = document.getElementById("modeBtn");
+const espStatusEl = document.getElementById("espStatus");
 
-// Hamburger menu
-function toggleMenu(){
-  document.getElementById("sidebar").classList.toggle("active");
-  document.getElementById("overlay").classList.toggle("active");
-}
+let relayState = 0;
+let autoMode = 1;
+let deviceOnline = false;
 
-// Section menu
-function showSection(section){
-  document.getElementById("dashboard").style.display = "none";
-  document.getElementById("proses").style.display = "none";
-  document.getElementById("tentang").style.display = "none";
-  document.getElementById(section).style.display = "block";
-  toggleMenu(); // otomatis tutup sidebar
-}
+// =============================
+// CONNECT
+// =============================
+client.on("connect", () => {
 
-// Tombol Pompa
-document.getElementById("pumpBtn").addEventListener("click", ()=>{
+  console.log("MQTT Connected");
 
-  fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/relay.json")
-    .then(res => res.json())
-    .then(current => {
-
-      let newValue = current == 1 ? 0 : 1;
-
-      fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/relay.json", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newValue)
-      });
-
-    });
-
+  client.subscribe("smartgarden/status/relay");
+  client.subscribe("smartgarden/status/mode");
+  client.subscribe("smartgarden/sensor/dht");
+  client.subscribe("smartgarden/sensor/ds18b20");
+  client.subscribe("smartgarden/sensor/soil");
+  client.subscribe("smartgarden/status/online");
 });
 
-// Tombol Mode
-document.getElementById("modeBtn").addEventListener("click", ()=>{
+// =============================
+// MESSAGE HANDLER
+// =============================
+client.on("message", (topic, message) => {
 
-  fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/mode.json")
-    .then(res => res.json())
-    .then(current => {
+  const msg = message.toString();
 
-      let newValue = current == 1 ? 0 : 1;
+  // ===== STATUS =====
+  if(topic === "smartgarden/status/relay"){
+    relayState = msg === "ON" ? 1 : 0;
+    updateRelayUI();
+  }
 
-      fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/status/mode.json", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newValue)
-      });
+  if(topic === "smartgarden/status/mode"){
+    autoMode = msg === "AUTO" ? 1 : 0;
+    updateModeUI();
+  }
 
-    });
+  // ===== SENSOR =====
+  if(topic === "smartgarden/sensor/dht"){
+    document.getElementById("tempDHT").innerHTML =
+      msg + " °C";
+  }
 
+  if(topic === "smartgarden/sensor/ds18b20"){
+    document.getElementById("tempDS").innerHTML =
+      msg + " °C";
+  }
+
+  if(topic === "smartgarden/sensor/soil"){
+
+    const soil = parseInt(msg);
+    const soilFill = document.getElementById("soil");
+
+    soilFill.style.width = soil + "%";
+    soilFill.innerHTML = soil + " %";
+
+    if(soil < 30) soilFill.style.background = "#e74c3c";
+    else if(soil < 50) soilFill.style.background = "#f1c40f";
+    else soilFill.style.background = "#2ecc71";
+  }
+
+  if(topic === "smartgarden/status/online"){
+    if(msg === "ONLINE") setOnline();
+    else setOffline();
+  }
 });
 
-/* ===== REALTIME UPDATE ===== */
-function updateData(){
-  fetch("https://kelompok-6---iot-default-rtdb.asia-southeast1.firebasedatabase.app/.json")
-    .then(res => res.json())
-    .then(data => {
+client.on("offline", setOffline);
+client.on("error", setOffline);
 
-      let sensor = data.sensor;
-      let status = data.status;
+// =============================
+// BUTTON CONTROL
+// =============================
+pumpBtn.addEventListener("click", () => {
 
-      document.getElementById("tempDHT").innerHTML = sensor.tempDHT + " °C";
-      document.getElementById("tempDS").innerHTML = sensor.tempDS + " °C";
+  if(!deviceOnline) return;
+  if(autoMode === 1) return;
 
-      document.getElementById("relay").innerHTML = status.relay ? "Aktif" : "Tidak Aktif";
-      document.getElementById("mode").innerHTML = status.mode ? "Otomatis" : "Manual";
+  const newState = relayState === 1 ? "OFF" : "ON";
+  client.publish("smartgarden/control/relay", newState);
+});
 
-      // Tombol Pompa
-      let pumpBtn = document.getElementById("pumpBtn");
-      if(status.relay == 1){
-        pumpBtn.innerHTML = "ON";
-        pumpBtn.className = "on";
-      } else {
-        pumpBtn.innerHTML = "OFF";
-        pumpBtn.className = "off";
-      }
+modeBtn.addEventListener("click", () => {
 
-      // Tombol Mode
-      let modeBtn = document.getElementById("modeBtn");
-      if(status.mode == 1){
-        modeBtn.innerHTML = "Auto";
-        modeBtn.className = "auto";
-      } else {
-        modeBtn.innerHTML = "Manual";
-        modeBtn.className = "manual";
-      }
+  if(!deviceOnline) return;
 
-      if(status.mode == 1){
-        document.getElementById("pumpBtn").disabled = true;
-        document.getElementById("pumpBtn").style.opacity = "0.5";
-      } else {
-        document.getElementById("pumpBtn").disabled = false;
-        document.getElementById("pumpBtn").style.opacity = "1";
-      }
+  const newMode = autoMode === 1 ? "MANUAL" : "AUTO";
+  client.publish("smartgarden/control/mode", newMode);
+});
 
+// =============================
+// UI UPDATE
+// =============================
+function updateRelayUI(){
 
-      // Soil indicator
-      let soilFill = document.getElementById("soil");
-      soilFill.style.width = sensor.soil + "%";
-      soilFill.innerHTML = sensor.soil + " %";
+  pumpBtn.className = "pump-btn " + (relayState ? "on" : "off");
+  pumpBtn.innerHTML = relayState ? "ON" : "OFF";
 
-      if(sensor.soil < 30) soilFill.style.background = "#e74c3c";
-      else if(sensor.soil < 60) soilFill.style.background = "#f1c40f";
-      else soilFill.style.background = "#2ecc71";
-
-      document.getElementById("espStatus").innerHTML = "ONLINE";
-      document.getElementById("espStatus").style.backgroundColor = "green";
-
-    })
-    .catch(err => {
-      document.getElementById("espStatus").innerHTML = "OFFLINE";
-      document.getElementById("espStatus").style.backgroundColor = "red";
-      console.log("Firebase error:", err);
-    });
+  // 🔥 update card atas
+  document.getElementById("relay").innerHTML =
+    relayState ? "Aktif" : "Tidak Aktif";
 }
 
-setInterval(updateData,100);
-updateData();
+function updateModeUI(){
+
+  modeBtn.className = "mode-btn " + (autoMode ? "auto" : "manual");
+  modeBtn.innerHTML = autoMode ? "Auto" : "Manual";
+
+  pumpBtn.disabled = autoMode === 1;
+
+  // 🔥 update card atas
+  document.getElementById("mode").innerHTML =
+    autoMode ? "Otomatis" : "Manual";
+}
+
+// =============================
+// ONLINE STATUS
+// =============================
+function setOnline(){
+  deviceOnline = true;
+
+  espStatusEl.innerHTML = "ONLINE";
+  espStatusEl.style.backgroundColor = "green";
+
+  pumpBtn.disabled = autoMode === 1;
+  modeBtn.disabled = false;
+}
+
+function setOffline(){
+  deviceOnline = false;
+
+  espStatusEl.innerHTML = "OFFLINE";
+  espStatusEl.style.backgroundColor = "red";
+
+  // reset tampilan atas
+  document.getElementById("relay").innerHTML = "--";
+  document.getElementById("mode").innerHTML = "--";
+
+  document.getElementById("tempDHT").innerHTML = "-- °C";
+  document.getElementById("tempDS").innerHTML = "-- °C";
+
+  const soilFill = document.getElementById("soil");
+  soilFill.style.width = "0%";
+  soilFill.innerHTML = "   --";
+
+  // disable tombol
+  pumpBtn.disabled = true;
+  modeBtn.disabled = true;
+}
