@@ -1,52 +1,66 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<script>
-(function() {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Theme Init -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
         document.documentElement.className = "dark";
-    } else if (savedTheme === "light") {
+      } else if (savedTheme === "light") {
         document.documentElement.className = "light";
-    }
-})();
-</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<title>KELOMPOK 6</title>
-<link rel="stylesheet" href="../css/tentang.css">
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <title>Smart Garden - Kelompok 6</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
 </head>
+
 <body>
 
-<!-- Navbar -->
-<div class="navbar">
-  <div class="nav-left">
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
-    <div class="logo">Tentang Kelompok 6</div>
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="nav-left">
+      <div class="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="logo">Dashboard</div>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeIcon">🌙</button>
   </div>
-  <button class="theme-toggle" onclick="toggleTheme()" id="themeIcon">🌙</button>
-</div>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-  <a href="index.html" onclick="showSection('dashboard')">Dashboard</a>
-  <a href="proses.html" onclick="showSection('proses')">Proses Pengerjaan</a>
-  <a href="tentang.html" onclick="showSection('tentang')">Tentang Kami</a>
-</div>
-<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
-<div class="card esp-card no-shadow" style="text-align:center;">
-  <h3>Status ESP32</h3>
-  <div id="espStatus" class="esp-status">
-    OFFLINE
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <a href="../pages/dashboard.html" onclick="showSection('dashboard')">Dashboard</a>
+    <a href="../pages/proses.html" onclick="showSection('proses')">Proses Pengerjaan</a>
+    <a href="../pages/tentang.html" onclick="showSection('tentang')">Tentang Kami</a>
   </div>
-</div>
-  <!-- Indikator ESP32 -->
-</div>
 
-<script src="../js/global.js" defer></script>
-<script src="../js/tentang.js" defer></script>
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <!-- STATUS ESP -->
+  <div class="card esp-card no-shadow" style="text-align:center;">
+    <h3>Status ESP32</h3>
+    <div id="espStatus" class="esp-status">
+      Checking...
+    </div>
+  </div>
+
+  <!-- MQTT LIBRARY -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+  <!-- GLOBAL JS -->
+  <script src="../js/global.js"></script>
+
+  <!-- DASHBOARD MQTT JS -->
+  <script src="../js/tentang.js"></script>
+
 </body>
 
-</html>
+</html

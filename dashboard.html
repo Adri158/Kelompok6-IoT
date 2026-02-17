@@ -52,6 +52,57 @@
     </div>
   </div>
 
+  <!-- DASHBOARD -->
+  <div class="content" id="dashboard">
+
+    <div class="dashboard">
+
+      <div class="card">
+        <h3>Suhu DHT11</h3>
+        <p id="tempDHT">-- °C</p>
+      </div>
+
+      <div class="card">
+        <h3>Suhu DS18B20</h3>
+        <p id="tempDS">-- °C</p>
+      </div>
+
+      <div class="card">
+        <h3>Soil Moisture</h3>
+        <div class="soil-bar">
+          <div id="soil" class="soil-fill">-- %</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Status Pompa</h3>
+        <p id="relay">--</p>
+      </div>
+
+      <div class="card">
+        <h3>Mode</h3>
+        <p id="mode">--</p>
+      </div>
+
+    </div>
+
+    <!-- CONTROL -->
+    <div class="controls">
+
+      <div class="card">
+        <h3>Kontrol Pompa</h3>
+        <button id="pumpBtn" class="pump-btn off">OFF</button>
+      </div>
+
+      <div class="card">
+        <h3>Mode</h3>
+        <button id="modeBtn" class="mode-btn manual">Manual</button>
+      </div>
+
+    </div>
+
+  </div>
+
   <!-- MQTT LIBRARY -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
@@ -59,8 +110,8 @@
   <script src="../js/global.js"></script>
 
   <!-- DASHBOARD MQTT JS -->
-  <script src="../js/proses.js"></script>
+  <script src="../js/dashboard.js"></script>
 
 </body>
 
-</html
+</html>
